@@ -1,7 +1,8 @@
 bundles/**
 node_modules/
 media/
-
+burgerenv/
+star-burger-products-master/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
