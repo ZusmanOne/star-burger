@@ -1,11 +1,10 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
-import json
-
 from .models import Order, OrderItem
 from .models import Product
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 
 
 def banners_list_api(request):
@@ -35,7 +34,6 @@ def banners_list_api(request):
 @api_view(['GET'])
 def product_list_api(request):
     products = Product.objects.select_related('category').available()
-
     dumped_products = []
     for product in products:
         dumped_product = {
@@ -55,22 +53,26 @@ def product_list_api(request):
             }
         }
         dumped_products.append(dumped_product)
-    # return JsonResponse(dumped_products, safe=False, json_dumps_params={
-    #     'ensure_ascii': False,
-    #     'indent': 4,
-    # })
     return Response(dumped_products)
 
 
 @api_view(['POST'])
 def register_order(request):
     serialized_order = request.data
-    my_order = Order.objects.create(first_name=serialized_order['firstname'],
-                                    last_name=serialized_order['lastname'],
-                                    phone_number=serialized_order['phonenumber'],
-                                    address=serialized_order['address'])
-    for order in serialized_order['products']:
-        OrderItem.objects.create(product=Product.objects.get(pk=order['product']),
-                                 order=my_order,
-                                 quantity=order['quantity'])
-    return Response(serialized_order)
+    try:
+        if isinstance(serialized_order['products'], list) and serialized_order['products']:
+            my_order = Order.objects.create(first_name=serialized_order['firstname'],
+                                            last_name=serialized_order['lastname'],
+                                            phone_number=serialized_order['phonenumber'],
+                                            address=serialized_order['address'])
+            for order in serialized_order['products']:
+                OrderItem.objects.create(product=Product.objects.get(pk=order['product']),
+                                         order=my_order,
+                                         quantity=order['quantity'])
+            return Response(serialized_order, status=status.HTTP_200_OK)
+        else:
+            content_error = {'error': 'not list or empty list'}
+            return Response(content_error, status=status.HTTP_400_BAD_REQUEST)
+    except KeyError:
+        key_error = {'error': 'not key(products)'}
+        return Response(key_error, status=status.HTTP_400_BAD_REQUEST)
