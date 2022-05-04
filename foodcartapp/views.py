@@ -5,6 +5,10 @@ from .models import Product
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.serializers import Serializer
+from rest_framework.serializers import CharField
+from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 
 
 def banners_list_api(request):
@@ -56,23 +60,81 @@ def product_list_api(request):
     return Response(dumped_products)
 
 
+class OrderItemSerializer(ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['product', 'quantity']
+
+
+class OrderSerializer(ModelSerializer):
+    products = OrderItemSerializer(many=True, allow_empty=False)
+
+    class Meta:
+        model = Order
+        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+
+
 @api_view(['POST'])
 def register_order(request):
-    serialized_order = request.data
-    try:
-        if isinstance(serialized_order['products'], list) and serialized_order['products']:
-            my_order = Order.objects.create(first_name=serialized_order['firstname'],
-                                            last_name=serialized_order['lastname'],
-                                            phone_number=serialized_order['phonenumber'],
-                                            address=serialized_order['address'])
-            for order in serialized_order['products']:
-                OrderItem.objects.create(product=Product.objects.get(pk=order['product']),
-                                         order=my_order,
-                                         quantity=order['quantity'])
-            return Response(serialized_order, status=status.HTTP_200_OK)
-        else:
-            content_error = {'error': 'not list or empty list'}
-            return Response(content_error, status=status.HTTP_400_BAD_REQUEST)
-    except KeyError:
-        key_error = {'error': 'not key(products)'}
-        return Response(key_error, status=status.HTTP_400_BAD_REQUEST)
+    serializer = OrderSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    products = request.data.get('products', [])
+    my_order = Order.objects.create(
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        phonenumber=serializer.validated_data['phonenumber'],
+        address=serializer.validated_data['address']
+    )
+    for order in products:
+        serializer = OrderItemSerializer(data=order)
+        serializer.is_valid(raise_exception=True)
+        OrderItem.objects.create(
+            product=serializer.validated_data['product'],
+            order=my_order,
+            quantity=serializer.validated_data['quantity']
+        )
+    return Response({'product_id': my_order.id})
+
+
+
+
+
+
+
+
+    # try:
+    #     print(serialized_order.keys())
+    #     if isinstance(serialized_order['products'], list) and serialized_order['products']:
+    #         try:
+    #             if serialized_order['firstname']:
+    #                 my_order = Order.objects.create(first_name=serialized_order['firstname'],
+    #                                                 last_name=serialized_order['lastname'],
+    #                                                 phone_number=serialized_order['phonenumber'],
+    #                                                 address=serialized_order['address'])
+    #
+    #             else:
+    #                 content_error = {'firstname': 'Это поле не может быть пустым.'}
+    #                 return Response(content_error, status=status.HTTP_400_BAD_REQUEST)
+    #             if serialized_order.keys():
+    #                 my_order = Order.objects.create(first_name=serialized_order['firstname'],
+    #                                                 last_name=serialized_order['lastname'],
+    #                                                 phone_number=serialized_order['phonenumber'],
+    #                                                 address=serialized_order['address'])
+    #
+    #             else:
+    #                 content_error = {'firstname, lastname, phonenumber, address': 'Это поле не может быть пустым.'}
+    #                 return Response(content_error, status=status.HTTP_400_BAD_REQUEST)
+    #         except KeyError:
+    #             key_error = {'firstname, lastname, phonenumber, address': 'Обязательное поле'}
+    #             return Response(key_error, status=status.HTTP_400_BAD_REQUEST)
+    #         for order in serialized_order['products']:
+    #             OrderItem.objects.create(product=Product.objects.get(pk=order['product']),
+    #                                      order=my_order,
+    #                                      quantity=order['quantity'])
+    #         return Response(serialized_order, status=status.HTTP_200_OK)
+    #     else:
+    #         content_error = {'products': 'Это поле не может быть строкой или пустым.'}
+    #         return Response(content_error, status=status.HTTP_400_BAD_REQUEST)
+    # except KeyError:
+    #     key_error = {'products': 'Обязательное поле.'}
+    #     return Response(key_error, status=status.HTTP_400_BAD_REQUEST)
