@@ -9,6 +9,8 @@ from rest_framework.serializers import Serializer
 from rest_framework.serializers import CharField
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
+from .serializers import OrderSerializer, OrderItemSerializer
+from django.core import serializers
 
 
 def banners_list_api(request):
@@ -60,30 +62,30 @@ def product_list_api(request):
     return Response(dumped_products)
 
 
-class OrderItemSerializer(ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = ['product', 'quantity']
-
-
-class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True, allow_empty=False)
-
-    class Meta:
-        model = Order
-        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+# class OrderItemSerializer(ModelSerializer):
+#     class Meta:
+#         model = OrderItem
+#         fields = ['product', 'quantity']
+#
+#
+# class OrderSerializer(ModelSerializer):
+#     products = OrderItemSerializer(many=True, allow_empty=False, write_only=True)
+#
+#     class Meta:
+#         model = Order
+#         fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
 
 
 @api_view(['POST'])
 def register_order(request):
-    serializer = OrderSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
+    serializer_order = OrderSerializer(data=request.data)
+    serializer_order.is_valid(raise_exception=True)
     products = request.data.get('products', [])
     my_order = Order.objects.create(
-        firstname=serializer.validated_data['firstname'],
-        lastname=serializer.validated_data['lastname'],
-        phonenumber=serializer.validated_data['phonenumber'],
-        address=serializer.validated_data['address']
+        firstname=serializer_order.validated_data['firstname'],
+        lastname=serializer_order.validated_data['lastname'],
+        phonenumber=serializer_order.validated_data['phonenumber'],
+        address=serializer_order.validated_data['address']
     )
     for order in products:
         serializer = OrderItemSerializer(data=order)
@@ -93,7 +95,7 @@ def register_order(request):
             order=my_order,
             quantity=serializer.validated_data['quantity']
         )
-    return Response({'product_id': my_order.id})
+    return Response(OrderSerializer(my_order).data)
 
 
 
