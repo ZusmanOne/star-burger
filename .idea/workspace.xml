@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b5d2fa68-89b0-4f6d-aa30-33dfe18cc83f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/foodcartapp/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/foodcartapp/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/restaurateur/templates/order_items.html" beforeDir="false" afterPath="$PROJECT_DIR$/restaurateur/templates/order_items.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/restaurateur/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/restaurateur/views.py" afterDir="false" />
     </list>
@@ -29,7 +30,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../drf_project" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../LearnProject" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
