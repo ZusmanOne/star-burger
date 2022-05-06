@@ -137,6 +137,7 @@ class Order(models.Model):
     phonenumber = PhoneNumberField(verbose_name='Номер телефона')
     address = models.CharField(max_length=200, verbose_name='Адрес')
     objects = OrderQuerySet.as_manager()
+    comment = models.TextField(verbose_name='Комментарий', blank=True)
 
     ORDER_STATUS = [
         ('UNPROCESSED', 'НЕ ОБРАБОТАН'),
