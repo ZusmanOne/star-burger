@@ -138,6 +138,13 @@ class Order(models.Model):
     address = models.CharField(max_length=200, verbose_name='Адрес')
     objects = OrderQuerySet.as_manager()
 
+    ORDER_STATUS = [
+        ('UNPROCESSED', 'НЕ ОБРАБОТАН'),
+        ('DONE', 'ВЫПОЛНЕН')
+    ]
+    status = models.CharField(max_length=20, choices=ORDER_STATUS, db_index=True, verbose_name='Статус Заказа',
+                              default='UNPROCESSED')
+
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
