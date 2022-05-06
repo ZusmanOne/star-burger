@@ -93,7 +93,9 @@ def register_order(request):
         OrderItem.objects.create(
             product=serializer.validated_data['product'],
             order=my_order,
-            quantity=serializer.validated_data['quantity']
+            quantity=serializer.validated_data['quantity'],
+            price=serializer.validated_data['product'].price * serializer.validated_data['quantity'],
+
         )
     return Response(OrderSerializer(my_order).data)
 
