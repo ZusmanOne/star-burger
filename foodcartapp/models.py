@@ -132,19 +132,31 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
+
+    ORDER_STATUS = [
+        ('UNPROCESSED', 'НЕ ОБРАБОТАН'),
+        ('DONE', 'ВЫПОЛНЕН')
+    ]
+
+    PAYMENT_METHOD = [
+        ('CASH', 'НАЛИЧНЫЕ'),
+        ('ONLINE', 'ОНЛАЙН')
+    ]
+
     firstname = models.CharField(max_length=100, verbose_name='Имя')
     lastname = models.CharField(max_length=100,  verbose_name='Фамилия')
     phonenumber = PhoneNumberField(verbose_name='Номер телефона')
     address = models.CharField(max_length=200, verbose_name='Адрес')
     objects = OrderQuerySet.as_manager()
     comment = models.TextField(verbose_name='Комментарий', blank=True)
-
-    ORDER_STATUS = [
-        ('UNPROCESSED', 'НЕ ОБРАБОТАН'),
-        ('DONE', 'ВЫПОЛНЕН')
-    ]
+    registered_at = models.DateTimeField(auto_now_add=True, null=True, db_index=True, verbose_name='Дата создания')
+    called_at = models.DateTimeField(db_index=True, verbose_name='Дата Звонка', null=True, blank=True)
+    delivery_at = models.DateTimeField(db_index=True, verbose_name='Дата Доставки', null=True, blank=True)
     status = models.CharField(max_length=20, choices=ORDER_STATUS, db_index=True, verbose_name='Статус Заказа',
                               default='UNPROCESSED')
+    payment_method = models.CharField(max_length=20, db_index=True, choices=PAYMENT_METHOD, default='ONLINE',
+                                      verbose_name='Способ оплаты')
+
 
     class Meta:
         verbose_name = 'Заказ'

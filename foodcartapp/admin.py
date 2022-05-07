@@ -13,7 +13,6 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.encoding import iri_to_uri
 
 
-
 class RestaurantMenuItemInline(admin.TabularInline):
     model = RestaurantMenuItem
     extra = 0
@@ -122,11 +121,11 @@ class OrderAdmin(admin.ModelAdmin):
         OrderItemInline
     ]
 
-    def response_change(self, request, obj):
-        res = super(OrderAdmin, self).response_change(request, obj)
-        if url_has_allowed_host_and_scheme(request.GET['next'], None):
-            url = iri_to_uri(request.GET['next'])
-            return HttpResponseRedirect(url)
+    readonly_fields = ('registered_at',)
+
+    def response_post_save_change(self, request, obj):
+        res = super().response_post_save_change(request, obj)
+        if "next" in request.GET:
+            return HttpResponseRedirect(request.GET['next'])
         else:
             return res
-
