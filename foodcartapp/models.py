@@ -1,8 +1,8 @@
 from django.db import models
-from django.db.models import Count,Sum,Max,Min,F
+from django.db.models import Count, Sum, Max, Min, F
 from django.core.validators import MinValueValidator, MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
-
+from functools import reduce
 
 
 class Restaurant(models.Model):
@@ -130,6 +130,17 @@ class OrderQuerySet(models.QuerySet):
     def get_order_price(self):
         return self.annotate(total_price=Sum(F('orders__price')))
 
+    def get_restaurant(self):
+        product_restaurant_menu = RestaurantMenuItem.objects.select_related('product')
+        for order in self:
+            serialized_restaurants = []
+            for order_product in order.orders.values('product'):
+                serialized_restaurants.append([rest_item.restaurant for rest_item in product_restaurant_menu
+                                               if order_product['product'] == rest_item.product.pk])
+            cooking_restaurant = reduce(set.intersection, map(set, serialized_restaurants))
+            order.cooking_restaurant = cooking_restaurant
+        return self
+
 
 class Order(models.Model):
 
@@ -156,7 +167,6 @@ class Order(models.Model):
                               default='UNPROCESSED')
     payment_method = models.CharField(max_length=20, db_index=True, choices=PAYMENT_METHOD, default='ONLINE',
                                       verbose_name='Способ оплаты')
-
 
     class Meta:
         verbose_name = 'Заказ'
@@ -185,9 +195,5 @@ class OrderItem(models.Model):
         verbose_name = 'Заказанный товар'
         verbose_name_plural = 'Заказанные товары'
 
-
     def __str__(self):
         return f'{self.product}'
-
-
-
