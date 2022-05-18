@@ -1,7 +1,5 @@
 import os
-
 import dj_database_url
-
 from environs import Env
 
 
@@ -12,8 +10,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
-SECRET_KEY = env('SECRET_KEY', 'etirgvonenrfnoerngorenogneongg334g')
-DEBUG = env.bool('DEBUG', True)
+SECRET_KEY = env('SECRET_KEY')
+DEBUG = env.bool('DEBUG')
+
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
@@ -28,6 +27,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'phonenumber_field',
+    'rest_framework',
+    'location.apps.LocationConfig',
+
 
 ]
 
@@ -124,3 +126,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets"),
     os.path.join(BASE_DIR, "bundles"),
 ]
+
+YANDEX_API_KEY = env('YANDEX_API_KEY')
+

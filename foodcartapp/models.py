@@ -1,6 +1,8 @@
 from django.db import models
+from django.db.models import Count, Sum, F
 from django.core.validators import MinValueValidator, MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
+from functools import reduce
 
 
 class Restaurant(models.Model):
@@ -124,18 +126,53 @@ class RestaurantMenuItem(models.Model):
         return f"{self.restaurant.name} - {self.product.name}"
 
 
+class OrderQuerySet(models.QuerySet):
+    def get_order_price(self):
+        return self.annotate(total_price=Sum(F('orders__price')))
+
+    def get_restaurant(self):
+        product_restaurant_menu = RestaurantMenuItem.objects.select_related('product')
+        for order in self:
+            serialized_restaurants = []
+            for order_product in order.orders.values('product'):
+                serialized_restaurants.append([rest_item.restaurant for rest_item in product_restaurant_menu
+                                               if order_product['product'] == rest_item.product.pk])
+            cooking_restaurant = reduce(set.intersection, map(set, serialized_restaurants))
+            order.cooking_restaurant = cooking_restaurant
+        return self
+
+
 class Order(models.Model):
-    first_name = models.CharField(max_length=100, verbose_name='Имя')
-    last_name = models.CharField(max_length=100, blank=True,  verbose_name='Фамилия')
-    phone_number = PhoneNumberField(verbose_name='Номер телефона')
+    ORDER_STATUS = [
+        ('UNPROCESSED', 'НЕ ОБРАБОТАН'),
+        ('DONE', 'ВЫПОЛНЕН')
+    ]
+
+    PAYMENT_METHOD = [
+        ('CASH', 'НАЛИЧНЫЕ'),
+        ('ONLINE', 'ОНЛАЙН')
+    ]
+
+    firstname = models.CharField(max_length=100, verbose_name='Имя')
+    lastname = models.CharField(max_length=100,  verbose_name='Фамилия')
+    phonenumber = PhoneNumberField(verbose_name='Номер телефона')
     address = models.CharField(max_length=200, verbose_name='Адрес')
+    objects = OrderQuerySet.as_manager()
+    comment = models.TextField(verbose_name='Комментарий', blank=True)
+    registered_at = models.DateTimeField(auto_now_add=True, null=True, db_index=True, verbose_name='Дата создания')
+    called_at = models.DateTimeField(db_index=True, verbose_name='Дата Звонка', null=True, blank=True)
+    delivery_at = models.DateTimeField(db_index=True, verbose_name='Дата Доставки', null=True, blank=True)
+    status = models.CharField(max_length=20, choices=ORDER_STATUS, db_index=True, verbose_name='Статус Заказа',
+                              default='UNPROCESSED')
+    payment_method = models.CharField(max_length=20, db_index=True, choices=PAYMENT_METHOD, default='ONLINE',
+                                      verbose_name='Способ оплаты')
 
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}, {self.address}"
+        return f"{self.firstname} {self.lastname}, {self.address}"
 
 
 class OrderItem(models.Model):
@@ -146,11 +183,16 @@ class OrderItem(models.Model):
                                    db_index=True,
                                    validators=[MinValueValidator(0), MaxValueValidator(100)],
                                    verbose_name='Количество')
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        verbose_name='Цена заказа'
+    )
 
     class Meta:
         verbose_name = 'Заказанный товар'
         verbose_name_plural = 'Заказанные товары'
-        ordering = ('quantity',)
 
     def __str__(self):
         return f'{self.product}'
