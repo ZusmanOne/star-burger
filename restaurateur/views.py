@@ -97,7 +97,6 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    apikey = '4649793f-44ed-419c-a02e-9db98f3a84a6'
     order_items = Order.objects.filter(status='UNPROCESSED').get_order_price().get_restaurant()
     for order in order_items:
         order.location = create_address(i.address)
