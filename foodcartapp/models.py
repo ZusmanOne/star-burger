@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Count, Sum, Max, Min, F
+from django.db.models import Count, Sum, F
 from django.core.validators import MinValueValidator, MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from functools import reduce
@@ -143,7 +143,6 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
-
     ORDER_STATUS = [
         ('UNPROCESSED', 'НЕ ОБРАБОТАН'),
         ('DONE', 'ВЫПОЛНЕН')

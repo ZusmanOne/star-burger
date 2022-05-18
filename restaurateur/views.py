@@ -3,12 +3,13 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-
-
+from geopy import distance
+from location.models import Location
+from location.views import create_address
 from foodcartapp.models import Product, Restaurant, Order, OrderItem
+
 
 class Login(forms.Form):
     username = forms.CharField(
@@ -96,9 +97,17 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    apikey = '4649793f-44ed-419c-a02e-9db98f3a84a6'
     order_items = Order.objects.filter(status='UNPROCESSED').get_order_price().get_restaurant()
-
+    for order in order_items:
+        order.location = create_address(i.address)
+        for restaurant in i.cooking_restaurant:
+            restaurant.location = create_address(e.address)
+            restaurant.distance = distance.distance(order.location, e.location)
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
 
     })
+
+
+
