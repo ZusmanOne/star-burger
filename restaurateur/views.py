@@ -99,10 +99,11 @@ def view_restaurants(request):
 def view_orders(request):
     order_items = Order.objects.filter(status='UNPROCESSED').get_order_price().get_restaurant()
     for order in order_items:
-        order.location = create_address(i.address)
-        for restaurant in i.cooking_restaurant:
-            restaurant.location = create_address(e.address)
-            restaurant.distance = distance.distance(order.location, e.location)
+        order.location = create_address(order.address)
+        for restaurant in order.cooking_restaurant:
+            restaurant.location = create_address(restaurant.address)
+            restaurant.distance = distance.distance(order.location, restaurant.location)
+            
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
 

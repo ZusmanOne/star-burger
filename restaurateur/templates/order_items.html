@@ -25,26 +25,25 @@
       <th>Ссылка на админку</th>
     </tr>
 
-    {% for item in order_items %}
+    {% for order in order_items %}
     <tr>
-      <td>{{item.pk}}</td>
-      <td>{{item.get_status_display}}</td>
-      <td>{{item.get_payment_method_display}}</td>
-      <td>{{item.total_price}}</td>
-      <td>{{item.firstname}} {{item.lastname}}</td>
-      <td>{{item.phonenumber}}</td>
+      <td>{{order.pk}}</td>
+      <td>{{order.get_status_display}}</td>
+      <td>{{order.get_payment_method_display}}</td>
+      <td>{{order.total_price}}</td>
+      <td>{{order.firstname}} {{order.lastname}}</td>
+      <td>{{order.phonenumber}}</td>
       <td>
-        {{item.address}}
-        <p>{{item.location}}</p>
+        {{order.address}}
+        <p>{{order.order_location}}</p>
       </td>
-      <td>{{item.comment}}</td>
+      <td>{{order.comment}}</td>
       <td>
         <details>
           <ul>
-            {% for e in item.cooking_restaurant%}
+            {% for restaurant in order.cooking_restaurant %}
             <li>
-              {{e.name}} -  {{e.distance}}
-
+              {{restaurant.name}} -  {{restaurant.distance}}
             </li>
             {% endfor %}
           </ul>
@@ -55,7 +54,7 @@
 
       </td>
       <td>
-        <a href="{% url 'admin:foodcartapp_order_change' item.pk %}?next={{ request.get_full_path|urlencode }}">ред.</a>
+        <a href="{% url 'admin:foodcartapp_order_change' order.pk %}?next={{ request.get_full_path|urlencode }}">ред.</a>
       </td>
     </tr>
 
