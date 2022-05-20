@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="19106c45-3374-4520-8b55-2c3e377efb8b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/foodcartapp/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/foodcartapp/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/foodcartapp/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/foodcartapp/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/restaurateur/templates/order_items.html" beforeDir="false" afterPath="$PROJECT_DIR$/restaurateur/templates/order_items.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/restaurateur/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/restaurateur/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/star_burger/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/star_burger/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,7 +24,7 @@
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../pokemon_map" />
     <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
   </component>
   <component name="RecentsManager">

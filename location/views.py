@@ -26,14 +26,18 @@ def fetch_coordinates(apikey, address):
 def create_address(address):
     all_location = {}
     for location in Location.objects.all():
-        all_location[location.address] = (location.lon, location.lat)
+        all_location[location.address] = (location.lat,location.lon)
     if address not in all_location:
-        adr = Location.objects.create(
-            address=address,
-            lon=fetch_coordinates(API_KEY, address)[0],
-            lat=fetch_coordinates(API_KEY, address)[1],
+        coordinates = fetch_coordinates(API_KEY, address)
+        if coordinates:
+            adr = Location.objects.create(
+                address=address,
+                lon=coordinates[1],
+                lat=coordinates[0],
 
-        )
+            )
+        else:
+            return None
         all_location[adr.address] = (adr.lon, adr.lat)
     return all_location[address]
 

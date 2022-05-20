@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from geopy import distance
+from geopy.distance import distance
 from location.models import Location
 from location.views import create_address
 from foodcartapp.models import Product, Restaurant, Order, OrderItem
@@ -95,19 +95,29 @@ def view_restaurants(request):
     })
 
 
+
+
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     order_items = Order.objects.filter(status='UNPROCESSED').get_order_price().get_restaurant()
-    for order in order_items:
-        order.location = create_address(order.address)
-        for restaurant in order.cooking_restaurant:
-            restaurant.location = create_address(restaurant.address)
-            restaurant.distance = distance.distance(order.location, restaurant.location)
-            
+    for i in order_items:
+        i_location = create_address(i.address)
+        for e in i.cooking_restaurant:
+            e_location = create_address(e.address)
+            print(i_location, e_location)
+            if not i_location or not e_location:
+                e.distance = None
+            else:
+                e.distance = (distance(i_location, e_location).km)
+
+
+
+
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
 
     })
+
 
 
 
