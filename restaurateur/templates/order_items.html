@@ -41,10 +41,10 @@
       <td>
         <details>
           <ul>
-            {% for restaurant in order.cooking_restaurant %}
+            {% for restaurant in order.sorted_restaurants %}
             <li>
-              {% if not restaurant.distance %}
-              <p>укажите корректный адрес </p>
+              {% if  restaurant.distance == 0 %}
+              <p>Ошибка определения координат </p>
               {% else %}
               {{restaurant.name}} -  {{restaurant.distance|stringformat:'.2f'}} км
               {%  endif %}

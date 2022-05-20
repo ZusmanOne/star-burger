@@ -150,8 +150,8 @@ class Order(models.Model):
     ]
 
     PAYMENT_METHOD = [
-        ('CASH', 'НАЛИЧНЫЕ'),
-        ('ONLINE', 'ОНЛАЙН')
+        ('CASH', 'Наличные'),
+        ('ONLINE', 'Онлайн')
     ]
 
     firstname = models.CharField(max_length=100, verbose_name='Имя')
