@@ -1,8 +1,9 @@
 from django.db import models
-from django.db.models import Count, Sum, F
+from django.db.models import Sum, F
 from django.core.validators import MinValueValidator, MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from functools import reduce
+import copy
 
 
 class Restaurant(models.Model):
@@ -138,19 +139,19 @@ class OrderQuerySet(models.QuerySet):
                 serialized_restaurants.append([rest_item.restaurant for rest_item in product_restaurant_menu
                                                if order_product['product'] == rest_item.product.pk])
             cooking_restaurant = reduce(set.intersection, map(set, serialized_restaurants))
-            order.cooking_restaurant = cooking_restaurant
+            order.cooking_restaurant = copy.deepcopy(cooking_restaurant)
         return self
 
 
 class Order(models.Model):
     ORDER_STATUS = [
-        ('UNPROCESSED', 'НЕ ОБРАБОТАН'),
-        ('DONE', 'ВЫПОЛНЕН')
+        ('UNPROCESSED', 'Не обработан'),
+        ('DONE', 'Выполнен')
     ]
 
     PAYMENT_METHOD = [
-        ('CASH', 'НАЛИЧНЫЕ'),
-        ('ONLINE', 'ОНЛАЙН')
+        ('CASH', 'Наличные'),
+        ('ONLINE', 'Онлайн')
     ]
 
     firstname = models.CharField(max_length=100, verbose_name='Имя')

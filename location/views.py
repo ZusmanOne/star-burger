@@ -24,17 +24,20 @@ def fetch_coordinates(apikey, address):
 
 
 def create_address(address):
-    all_location = {}
-    for location in Location.objects.all():
-        all_location[location.address] = (location.lon, location.lat)
-    if address not in all_location:
-        adr = Location.objects.create(
-            address=address,
-            lon=fetch_coordinates(API_KEY, address)[0],
-            lat=fetch_coordinates(API_KEY, address)[1],
+    locations = Location.objects.all()
+    serialized_locations = {}
+    for location in locations:
+        serialized_locations[location.address] = (location.lat, location.lon)
+    if address not in serialized_locations:
+        coordinates = fetch_coordinates(API_KEY, address)
+        if coordinates:
+            adr = Location.objects.create(
+                address=address,
+                lat=coordinates[1],
+                lon=coordinates[0],
 
-        )
-        all_location[adr.address] = (adr.lon, adr.lat)
-    return all_location[address]
-
-
+            )
+        else:
+            return None
+        serialized_locations[adr.address] = (adr.lat, adr.lon)
+    return serialized_locations[address]

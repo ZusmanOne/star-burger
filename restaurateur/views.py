@@ -5,10 +5,9 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from geopy import distance
-from location.models import Location
+from geopy.distance import distance
 from location.views import create_address
-from foodcartapp.models import Product, Restaurant, Order, OrderItem
+from foodcartapp.models import Product, Restaurant, Order
 
 
 class Login(forms.Form):
@@ -99,15 +98,20 @@ def view_restaurants(request):
 def view_orders(request):
     order_items = Order.objects.filter(status='UNPROCESSED').get_order_price().get_restaurant()
     for order in order_items:
-        order.location = create_address(order.address)
+        order_location = create_address(order.address)
         for restaurant in order.cooking_restaurant:
-            restaurant.location = create_address(restaurant.address)
-            restaurant.distance = distance.distance(order.location, restaurant.location)
-            
+            restaurant_location = create_address(restaurant.address)
+            if order_location and restaurant_location:
+                restaurant.distance = distance(order_location, restaurant_location).km
+
+            else:
+                restaurant.distance = 0
+        sorted_restaurants = sorted(
+            order.cooking_restaurant,
+            key=lambda restaurant: restaurant.distance
+        )
+        order.sorted_restaurants = sorted_restaurants
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
 
     })
-
-
-

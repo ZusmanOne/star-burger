@@ -41,17 +41,17 @@
       <td>
         <details>
           <ul>
-            {% for restaurant in order.cooking_restaurant %}
+            {% for restaurant in order.sorted_restaurants %}
             <li>
-              {{restaurant.name}} -  {{restaurant.distance}}
+              {% if  restaurant.distance == 0 %}
+              <p>Ошибка определения координат </p>
+              {% else %}
+              {{restaurant.name}} -  {{restaurant.distance|stringformat:'.2f'}} км
+              {%  endif %}
             </li>
             {% endfor %}
           </ul>
-
-
-
         </details>
-
       </td>
       <td>
         <a href="{% url 'admin:foodcartapp_order_change' order.pk %}?next={{ request.get_full_path|urlencode }}">ред.</a>

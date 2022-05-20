@@ -1,8 +1,7 @@
 from django.contrib import admin
-from django.shortcuts import reverse,HttpResponseRedirect
+from django.shortcuts import reverse, HttpResponseRedirect
 from django.templatetags.static import static
 from django.utils.html import format_html
-
 from .models import Product
 from .models import ProductCategory
 from .models import Restaurant
