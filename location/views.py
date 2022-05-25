@@ -23,21 +23,23 @@ def fetch_coordinates(apikey, address):
     return lon, lat
 
 
-def create_address(address):
-    locations = Location.objects.all()
-    serialized_locations = {}
-    for location in locations:
-        serialized_locations[location.address] = (location.lat, location.lon)
-    if address not in serialized_locations:
+def create_locations(address):
+    locations = Location.objects.values('address')
+    if address in [i['address'] for i in locations]:
+        address_location = fetch_coordinates(API_KEY,address)
+        if address_location:
+            lon, lat = address_location
+            return lat, lon
+        return None
+    else:
         coordinates = fetch_coordinates(API_KEY, address)
         if coordinates:
-            adr = Location.objects.create(
+            coordinates_lon,coordinates_lat = coordinates
+            new_location = Location.objects.create(
                 address=address,
-                lat=coordinates[1],
-                lon=coordinates[0],
-
+                lat=coordinates_lat,
+                lon=coordinates_lon,
             )
+            return new_location.lat, new_location.lon
         else:
             return None
-        serialized_locations[adr.address] = (adr.lat, adr.lon)
-    return serialized_locations[address]
