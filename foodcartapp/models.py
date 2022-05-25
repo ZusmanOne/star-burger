@@ -129,13 +129,13 @@ class RestaurantMenuItem(models.Model):
 
 class OrderQuerySet(models.QuerySet):
     def get_order_price(self):
-        return self.annotate(total_price=Sum(F('orders__price')))
+        return self.annotate(total_price=Sum(F('order_items__price')))
 
     def get_restaurant(self):
-        product_restaurant_menu = RestaurantMenuItem.objects.select_related('product')
+        product_restaurant_menu = RestaurantMenuItem.objects.select_related('product_orders')
         for order in self:
             serialized_restaurants = []
-            for order_product in order.orders.values('product'):
+            for order_product in order.order_items.values('product'):
                 serialized_restaurants.append([rest_item.restaurant for rest_item in product_restaurant_menu
                                                if order_product['product'] == rest_item.product.pk])
             cooking_restaurant = reduce(set.intersection, map(set, serialized_restaurants))
@@ -156,17 +156,23 @@ class Order(models.Model):
 
     firstname = models.CharField(max_length=100, verbose_name='Имя')
     lastname = models.CharField(max_length=100,  verbose_name='Фамилия')
-    phonenumber = PhoneNumberField(verbose_name='Номер телефона')
+    phonenumber = PhoneNumberField(verbose_name='Номер телефона', db_index=True)
     address = models.CharField(max_length=200, verbose_name='Адрес')
-    objects = OrderQuerySet.as_manager()
     comment = models.TextField(verbose_name='Комментарий', blank=True)
-    registered_at = models.DateTimeField(auto_now_add=True, null=True, db_index=True, verbose_name='Дата создания')
+    registered_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Дата создания')
     called_at = models.DateTimeField(db_index=True, verbose_name='Дата Звонка', null=True, blank=True)
     delivery_at = models.DateTimeField(db_index=True, verbose_name='Дата Доставки', null=True, blank=True)
-    status = models.CharField(max_length=20, choices=ORDER_STATUS, db_index=True, verbose_name='Статус Заказа',
+    status = models.CharField(max_length=20,
+                              choices=ORDER_STATUS,
+                              db_index=True,
+                              verbose_name='Статус Заказа',
                               default='UNPROCESSED')
-    payment_method = models.CharField(max_length=20, db_index=True, choices=PAYMENT_METHOD, default='ONLINE',
+    payment_method = models.CharField(max_length=20,
+                                      db_index=True,
+                                      choices=PAYMENT_METHOD,
                                       verbose_name='Способ оплаты')
+
+    objects = OrderQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Заказ'
@@ -177,9 +183,13 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    product = models.ForeignKey(Product, related_name='products', on_delete=models.CASCADE,
+    product = models.ForeignKey(Product,
+                                related_name='product_orders',
+                                on_delete=models.CASCADE,
                                 verbose_name='Товар')
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='orders', verbose_name='Заказ')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE,
+                              related_name='order_items',
+                              verbose_name='Заказ')
     quantity = models.IntegerField(default=1,
                                    db_index=True,
                                    validators=[MinValueValidator(0), MaxValueValidator(100)],
@@ -188,6 +198,7 @@ class OrderItem(models.Model):
         max_digits=10,
         decimal_places=2,
         validators=[MinValueValidator(0)],
+        db_index=True,
         verbose_name='Цена заказа'
     )
 
