@@ -41,6 +41,9 @@
       <td>
         <details>
           <ul>
+            {% if order.cooked_restaurant %}
+            <li> Приготовит ресторан - {{order.cooked_restaurant}}</li>
+            {% else %}
             {% for restaurant in order.sorted_restaurants %}
             <li>
               {% if  restaurant.distance == 0 %}
@@ -50,6 +53,7 @@
               {%  endif %}
             </li>
             {% endfor %}
+            {%  endif%}
           </ul>
         </details>
       </td>

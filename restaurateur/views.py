@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from geopy.distance import distance
-from location.views import create_address
+from location.views import create_locations
 from foodcartapp.models import Product, Restaurant, Order
 
 
@@ -96,14 +96,19 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = Order.objects.filter(status='UNPROCESSED').get_order_price().get_restaurant()
+    order_items = Order.objects.filter(status__in=['UNPROCESSED', 'PROCESSED']).get_order_price().get_restaurant()
+    restaurants = Restaurant.objects.all()
+    order_locations = {order.address: create_locations(order.address) for order in order_items}
+    rest_locations = {rest.address: create_locations(rest.address) for rest in restaurants}
     for order in order_items:
-        order_location = create_address(order.address)
+        if order.cooked_restaurant:
+            order.status = 'PROCESSED'
+            order.save()
+        order_location = order_locations[order.address]
         for restaurant in order.cooking_restaurant:
-            restaurant_location = create_address(restaurant.address)
+            restaurant_location = rest_locations[restaurant.address]
             if order_location and restaurant_location:
                 restaurant.distance = distance(order_location, restaurant_location).km
-
             else:
                 restaurant.distance = 0
         sorted_restaurants = sorted(
@@ -113,5 +118,4 @@ def view_orders(request):
         order.sorted_restaurants = sorted_restaurants
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
-
     })
