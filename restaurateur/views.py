@@ -6,7 +6,8 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from geopy.distance import distance
-from location.views import create_locations
+from location.views import create_location
+from location.models import Location
 from foodcartapp.models import Product, Restaurant, Order
 
 
@@ -97,16 +98,32 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     order_items = Order.objects.filter(status__in=['UNPROCESSED', 'PROCESSED']).get_order_price().get_restaurant()
-    restaurants = Restaurant.objects.all()
-    order_locations = {order.address: create_locations(order.address) for order in order_items}
-    rest_locations = {rest.address: create_locations(rest.address) for rest in restaurants}
+    locations = Location.objects.all()
+    all_locations = {loc.address: (loc.lat, loc.lon) for loc in locations}
+    not_locations = [i.address for i in order_items if i.address not in all_locations]
+    create_locations = []
+    for i in not_locations:
+        new_coord = create_location(i)
+        if new_coord:
+            lat, lon = new_coord
+            if lat and lon:
+                new_loc = Location(
+                        address=i,
+                        lat=lat,
+                        lon=lon
+                        )
+                create_locations.append(new_loc)
+                all_locations[i] = (new_loc.lat, new_loc.lon)
+        else:
+            all_locations[i] = None
+    Location.objects.bulk_create(create_locations)
     for order in order_items:
         if order.cooked_restaurant:
             order.status = 'PROCESSED'
             order.save()
-        order_location = order_locations[order.address]
+        order_location = all_locations[order.address]
         for restaurant in order.cooking_restaurant:
-            restaurant_location = rest_locations[restaurant.address]
+            restaurant_location = all_locations[restaurant.address]
             if order_location and restaurant_location:
                 restaurant.distance = distance(order_location, restaurant_location).km
             else:

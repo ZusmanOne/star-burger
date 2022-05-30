@@ -45,10 +45,13 @@
             <li> Приготовит ресторан - {{order.cooked_restaurant}}</li>
             {% else %}
             {% for restaurant in order.sorted_restaurants %}
+
+            {% if   restaurant.distance == 0  %}
+            {%if forloop.first%}
+            <p>Ошибка определения координат </p>
+            {%  endif%}
+            {% else %}
             <li>
-              {% if  restaurant.distance == 0 %}
-              <p>Ошибка определения координат </p>
-              {% else %}
               {{restaurant.name}} -  {{restaurant.distance|stringformat:'.2f'}} км
               {%  endif %}
             </li>

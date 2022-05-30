@@ -81,5 +81,6 @@ def register_order(request):
             price=serializer.validated_data['product'].price * serializer.validated_data['quantity'],
 
         ))
+
     OrderItem.objects.bulk_create(create_order_item)
     return Response(OrderSerializer(create_order).data)
