@@ -4,9 +4,6 @@ import requests
 from django.conf import settings
 
 
-API_KEY = settings.YANDEX_API_KEY
-
-
 def fetch_coordinates(apikey, address):
     base_url = "https://geocode-maps.yandex.ru/1.x"
     response = requests.get(base_url, params={
@@ -23,23 +20,16 @@ def fetch_coordinates(apikey, address):
     return lon, lat
 
 
-def create_locations(address):
-    locations = Location.objects.values('address')
-    if address in [i['address'] for i in locations]:
-        address_location = fetch_coordinates(API_KEY,address)
-        if address_location:
-            lon, lat = address_location
-            return lat, lon
-        return None
+def create_location(address):
+    api_key = settings.YANDEX_API_KEY
+    all_location = {locate.address: (locate.lat,locate.lon) for locate in Location.objects.all()}
+    if address in all_location:
+        lat, lon = all_location[address]
+        return lat, lon
     else:
-        coordinates = fetch_coordinates(API_KEY, address)
+        coordinates = fetch_coordinates(api_key, address)
         if coordinates:
-            coordinates_lon,coordinates_lat = coordinates
-            new_location = Location.objects.create(
-                address=address,
-                lat=coordinates_lat,
-                lon=coordinates_lon,
-            )
-            return new_location.lat, new_location.lon
+            coordinates_lon, coordinates_lat = coordinates
+            return coordinates_lat, coordinates_lon
         else:
             return None
