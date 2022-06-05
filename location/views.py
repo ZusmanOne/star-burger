@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Location
 import requests
 from django.conf import settings
+from django.db.models import Count
 
 
 def fetch_coordinates(apikey, address):
@@ -22,14 +23,13 @@ def fetch_coordinates(apikey, address):
 
 def create_location(address):
     api_key = settings.YANDEX_API_KEY
-    all_location = {locate.address: (locate.lat,locate.lon) for locate in Location.objects.all()}
-    if address in all_location:
-        lat, lon = all_location[address]
-        return lat, lon
-    else:
+    locations = list(Location.objects.all())
+    for locate in locations:
+        if address == locate.address:
+            lat, lon = (locate.lat, locate.lon)
+            return lat, lon
         coordinates = fetch_coordinates(api_key, address)
         if coordinates:
             coordinates_lon, coordinates_lat = coordinates
             return coordinates_lat, coordinates_lon
-        else:
-            return None
+        return None

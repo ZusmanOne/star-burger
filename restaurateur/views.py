@@ -97,11 +97,14 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = Order.objects.filter(status__in=['UNPROCESSED', 'PROCESSED']).get_order_price().get_restaurant()
+    order_items = Order.objects.filter(status__in=['UNPROCESSED', 'PROCESSED'])\
+        .get_order_price().select_related('cooked_restaurant').prefetch_related('order_items')\
+        .get_restaurant()
     locations = Location.objects.all()
     all_locations = {loc.address: (loc.lat, loc.lon) for loc in locations}
     not_locations = [i.address for i in order_items if i.address not in all_locations]
     create_locations = []
+    print(not_locations)
     for i in not_locations:
         new_coord = create_location(i)
         if new_coord:
