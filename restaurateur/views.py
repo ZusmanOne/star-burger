@@ -6,8 +6,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from geopy.distance import distance
-from location.views import create_location
-from location.models import Location
+from location.views import get_or_create_locations
 from foodcartapp.models import Product, Restaurant, Order
 
 
@@ -97,28 +96,29 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = Order.objects.filter(status__in=['UNPROCESSED', 'PROCESSED'])\
-        .get_order_price().select_related('cooked_restaurant').prefetch_related('order_items')\
-        .get_restaurant()
-    order_addresses = [order.address for order in Order.objects.all()]
+    orders = Order.objects.filter(status__in=['UNPROCESSED', 'PROCESSED'])\
+        .get_order_price().select_related('selected_restaurant').prefetch_related('items')\
+        .get_available_restaurants()
+    order_addresses = [order.address for order in orders]
     restaurant_addresses = [restaurant.address for restaurant in Restaurant.objects.all()]
-    all_locations = create_location(*order_addresses, *restaurant_addresses)
-    for order in order_items:
-        if order.cooked_restaurant:
+    all_locations = get_or_create_locations(*order_addresses, *restaurant_addresses)
+    for order in orders:
+        if order.selected_restaurant:
             order.status = 'PROCESSED'
             order.save()
         order_location = all_locations[order.address]
-        for restaurant in order.cooking_restaurant:
+        for restaurant in order.cooking_restaurants:
             restaurant_location = all_locations[restaurant.address]
-            if order_location and restaurant_location:
+            lat, lon = order_location
+            if lat or lon:
                 restaurant.distance = distance(order_location, restaurant_location).km
             else:
                 restaurant.distance = 0
         sorted_restaurants = sorted(
-            order.cooking_restaurant,
+            order.cooking_restaurants,
             key=lambda restaurant: restaurant.distance
         )
         order.sorted_restaurants = sorted_restaurants
     return render(request, template_name='order_items.html', context={
-        'order_items': order_items,
+        'order_items': orders,
     })
