@@ -100,7 +100,6 @@ def view_orders(request):
     order_items = Order.objects.filter(status__in=['UNPROCESSED', 'PROCESSED'])\
         .get_order_price().select_related('cooked_restaurant').prefetch_related('order_items')\
         .get_restaurant()
-    # locations = Location.objects.all()
     order_addresses = [order.address for order in Order.objects.all()]
     restaurant_addresses = [restaurant.address for restaurant in Restaurant.objects.all()]
     all_locations = create_location(*order_addresses, *restaurant_addresses)
