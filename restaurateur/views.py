@@ -100,26 +100,10 @@ def view_orders(request):
     order_items = Order.objects.filter(status__in=['UNPROCESSED', 'PROCESSED'])\
         .get_order_price().select_related('cooked_restaurant').prefetch_related('order_items')\
         .get_restaurant()
-    locations = Location.objects.all()
-    all_locations = {loc.address: (loc.lat, loc.lon) for loc in locations}
-    not_locations = [i.address for i in order_items if i.address not in all_locations]
-    create_locations = []
-    print(not_locations)
-    for i in not_locations:
-        new_coord = create_location(i)
-        if new_coord:
-            lat, lon = new_coord
-            if lat and lon:
-                new_loc = Location(
-                        address=i,
-                        lat=lat,
-                        lon=lon
-                        )
-                create_locations.append(new_loc)
-                all_locations[i] = (new_loc.lat, new_loc.lon)
-        else:
-            all_locations[i] = None
-    Location.objects.bulk_create(create_locations)
+    # locations = Location.objects.all()
+    order_addresses = [order.address for order in Order.objects.all()]
+    restaurant_addresses = [restaurant.address for restaurant in Restaurant.objects.all()]
+    all_locations = create_location(*order_addresses, *restaurant_addresses)
     for order in order_items:
         if order.cooked_restaurant:
             order.status = 'PROCESSED'

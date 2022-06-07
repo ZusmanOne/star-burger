@@ -21,15 +21,21 @@ def fetch_coordinates(apikey, address):
     return lon, lat
 
 
-def create_location(address):
+def create_location(*addresses):
     api_key = settings.YANDEX_API_KEY
-    locations = list(Location.objects.all())
-    for locate in locations:
-        if address == locate.address:
-            lat, lon = (locate.lat, locate.lon)
-            return lat, lon
-        coordinates = fetch_coordinates(api_key, address)
-        if coordinates:
-            coordinates_lon, coordinates_lat = coordinates
-            return coordinates_lat, coordinates_lon
-        return None
+    serialized_addresses = [*addresses]
+    locations = {i.address: (i.lat, i.lon) for i in Location.objects.filter(address__in=serialized_addresses)}
+    for address in serialized_addresses:
+        if address not in [locate for locate in locations.keys()]:
+            coordinates = fetch_coordinates(api_key, address)
+            if coordinates:
+                coordinates_lon, coordinates_lat = coordinates
+                new_locate = Location.objects.create(
+                    address=address,
+                    lat=coordinates_lat,
+                    lon=coordinates_lon,
+                )
+                locations[new_locate.address] = (new_locate.lat, new_locate.lon)
+            locations[address] = None
+    return locations
+
