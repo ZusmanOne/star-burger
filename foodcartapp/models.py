@@ -132,12 +132,12 @@ class OrderQuerySet(models.QuerySet):
         return self.annotate(total_price=Sum(F('order_items__price')))
 
     def get_restaurant(self):
-        product_restaurant_menu = RestaurantMenuItem.objects.select_related('product')
+        product_restaurant_menu = RestaurantMenuItem.objects.select_related('product', 'restaurant')
         for order in self:
             serialized_restaurants = []
-            for order_product in order.order_items.values('product'):
+            for order_product in order.order_items.all():
                 serialized_restaurants.append([rest_item.restaurant for rest_item in product_restaurant_menu
-                                               if order_product['product'] == rest_item.product.pk])
+                                               if order_product.product_id == rest_item.product.pk])
             cooking_restaurant = reduce(set.intersection, map(set, serialized_restaurants))
             order.cooking_restaurant = copy.deepcopy(cooking_restaurant)
         return self
