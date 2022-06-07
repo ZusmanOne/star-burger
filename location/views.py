@@ -44,6 +44,5 @@ def get_or_create_locations(*addresses):
             new_locate = Location.objects.create(
                 address=address
             )
-    #print(locations)
     return locations
 
