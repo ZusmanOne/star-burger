@@ -129,17 +129,18 @@ class RestaurantMenuItem(models.Model):
 
 class OrderQuerySet(models.QuerySet):
     def get_order_price(self):
-        return self.annotate(total_price=Sum(F('order_items__price')))
+        return self.annotate(total_price=Sum(F('items__price')))
 
-    def get_restaurant(self):
+    def get_available_restaurants(self):
         product_restaurant_menu = RestaurantMenuItem.objects.select_related('product', 'restaurant')
         for order in self:
             serialized_restaurants = []
-            for order_product in order.order_items.all():
+
+            for order_product in order.items.all():
                 serialized_restaurants.append([rest_item.restaurant for rest_item in product_restaurant_menu
                                                if order_product.product_id == rest_item.product.pk])
-            cooking_restaurant = reduce(set.intersection, map(set, serialized_restaurants))
-            order.cooking_restaurant = copy.deepcopy(cooking_restaurant)
+            cooking_restaurants = reduce(set.intersection, map(set, serialized_restaurants))
+            order.cooking_restaurants = copy.deepcopy(cooking_restaurants)
         return self
 
 
@@ -174,12 +175,12 @@ class Order(models.Model):
         db_index=True,
         choices=PAYMENT_METHOD,
         verbose_name='Способ оплаты')
-    cooked_restaurant = models.ForeignKey(
+    selected_restaurant = models.ForeignKey(
         Restaurant,
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name='restaurant_orders',
+        related_name='orders',
         verbose_name='Готовящий ресторан')
 
     objects = OrderQuerySet.as_manager()
@@ -195,13 +196,13 @@ class Order(models.Model):
 class OrderItem(models.Model):
     product = models.ForeignKey(
         Product,
-        related_name='product_orders',
+        related_name='order_items',
         on_delete=models.CASCADE,
         verbose_name='Товар')
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
-        related_name='order_items',
+        related_name='items',
         verbose_name='Заказ')
     quantity = models.IntegerField(
         default=1,
@@ -213,7 +214,7 @@ class OrderItem(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(0)],
         db_index=True,
-        verbose_name='Цена заказа'
+        verbose_name='Общая стоимость товара'
     )
 
     class Meta:

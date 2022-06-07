@@ -41,8 +41,8 @@
       <td>
         <details>
           <ul>
-            {% if order.cooked_restaurant %}
-            <li> Приготовит ресторан - {{order.cooked_restaurant}}</li>
+            {% if order.selected_restaurant %}
+            <li> Приготовит ресторан - {{order.selected_restaurant}}</li>
             {% else %}
             {% for restaurant in order.sorted_restaurants %}
 
