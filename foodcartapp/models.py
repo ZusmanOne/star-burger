@@ -134,12 +134,11 @@ class OrderQuerySet(models.QuerySet):
     def get_available_restaurants(self):
         product_restaurant_menu = RestaurantMenuItem.objects.select_related('product', 'restaurant')
         for order in self:
-            serialized_restaurants = []
-
+            prepares_product_restaurants = []
             for order_product in order.items.all():
-                serialized_restaurants.append([rest_item.restaurant for rest_item in product_restaurant_menu
-                                               if order_product.product_id == rest_item.product.pk])
-            cooking_restaurants = reduce(set.intersection, map(set, serialized_restaurants))
+                prepares_product_restaurants.append([rest_item.restaurant for rest_item in product_restaurant_menu
+                                                    if order_product.product_id == rest_item.product.pk])
+            cooking_restaurants = reduce(set.intersection, map(set, prepares_product_restaurants))
             order.cooking_restaurants = copy.deepcopy(cooking_restaurants)
         return self
 
