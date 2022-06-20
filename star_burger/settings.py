@@ -3,7 +3,6 @@ import dj_database_url
 from environs import Env
 
 
-
 env = Env()
 env.read_env()
 
@@ -15,7 +14,8 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG')
 
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
@@ -43,6 +43,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404',
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -85,11 +86,11 @@ WSGI_APPLICATION = 'star_burger.wsgi.application'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
-    )
-}
+
+DATABASES = {'default': dj_database_url.config(
+    default=env('DATABASE_URL'))}
+
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -129,4 +130,11 @@ STATICFILES_DIRS = [
 ]
 
 YANDEX_API_KEY = env('YANDEX_API_KEY')
+
+ROLLBAR = {
+    'access_token': env('ROLLBAR_TOKEN'),
+    'environment': 'development' if DEBUG else 'production',
+    'branch': 'master',
+    'root': BASE_DIR,
+}
 
