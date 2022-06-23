@@ -1,7 +1,7 @@
 import os
 import dj_database_url
 from environs import Env
-
+import rollbar
 
 env = Env()
 env.read_env()
@@ -131,10 +131,13 @@ STATICFILES_DIRS = [
 
 YANDEX_API_KEY = env('YANDEX_API_KEY')
 
+
 ROLLBAR = {
-    'access_token': env('ROLLBAR_TOKEN'),
-    'environment': 'development' if DEBUG else 'production',
+    'access_token': env('ROLLBAR_TOKEN', 'REPLACE_ME'),
+    'environment': env('ROLL_BAR_PROD'),
     'branch': 'master',
     'root': BASE_DIR,
 }
+
+rollbar.init(**ROLLBAR)
 
