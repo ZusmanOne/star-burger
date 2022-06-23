@@ -11,7 +11,7 @@ python manage.py collectstatic --noinput
 python manage.py migrate --noinput
 sudo systemctl daemon-reload
 sudo systemctl reload nginx
-ID_COMMIT=`git rev-parse HEAD``
+ID_COMMIT=`git rev-parse HEAD`
 curl -H "X-Rollbar-Access-Token: 818f735ce59e48a1bfa752dfbcc23378" -H "Content-Type: application/json" -X POST 'https://api.rollbar.com/api/1/deploy' -d '{"revision": "'${ID_COMMIT}'", "status": "succeeded"}'
 echo СКРИПТ УСПЕШНО ВЫПОЛНЕН!
 
