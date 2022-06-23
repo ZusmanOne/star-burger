@@ -146,7 +146,8 @@ Parcel будет следить за файлами в каталоге `bundle
 - `DATABASE_URL` = 'postgres://username:password@hostname:port/db_name' - для этого потребуется установка
   [postgresql](https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-20-04)
 - `ROLLBAR_TOKEN`- зарег-ся на [оф.сайте ROLLBAR](https://www.rollbar.com) и получи токен следуя инструкции
-
+- `ROLL_BAR_PROD`='production' - для работы на сервере
+- `ROLL_BAR_DEV`='development' - для локальной работы
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
