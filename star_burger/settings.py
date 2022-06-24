@@ -134,7 +134,7 @@ YANDEX_API_KEY = env('YANDEX_API_KEY')
 
 ROLLBAR = {
     'access_token': env('ROLLBAR_TOKEN', 'REPLACE_ME'),
-    'environment': env('ROLL_BAR_PROD'),
+    'environment': env('ROLLBAR_ENV'),
     'branch': 'master',
     'root': BASE_DIR,
 }
