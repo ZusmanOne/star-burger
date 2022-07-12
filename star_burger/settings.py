@@ -14,7 +14,7 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG')
 
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(" ")
 
 
 INSTALLED_APPS = [
@@ -87,10 +87,30 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 
-DATABASES = {'default': dj_database_url.config(
-    default=env('DATABASE_URL'))}
+# DATABASES = {'default': dj_database_url.config(
+#     default=env('DATABASE_URL'))}
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
+    }
+}
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'star_burger',
+#         'USER': 'devman',
+#         'PASSWORD': 'devman',
+#         'HOST': 'db',
+#         'PORT': 5432
+#     }
+# }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -131,13 +151,13 @@ STATICFILES_DIRS = [
 
 YANDEX_API_KEY = env('YANDEX_API_KEY')
 
-
-ROLLBAR = {
-    'access_token': env('ROLLBAR_TOKEN', 'REPLACE_ME'),
-    'environment': env('ROLLBAR_ENV'),
-    'branch': 'master',
-    'root': BASE_DIR,
-}
-
-rollbar.init(**ROLLBAR)
+#
+# ROLLBAR = {
+#     'access_token': env('ROLLBAR_TOKEN', 'REPLACE_ME'),
+#     'environment': env('ROLLBAR_ENV'),
+#     'branch': 'master',
+#     'root': BASE_DIR,
+# }
+#
+# rollbar.init(**ROLLBAR)
 

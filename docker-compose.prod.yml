@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  db:
+    image: postgres:12.9
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env.prod.db
+
+  web:
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod
+    command: gunicorn star_burger.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    expose:
+      - 8000
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    ports:
+      - 1337:80
+    depends_on:
+      - web
+
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

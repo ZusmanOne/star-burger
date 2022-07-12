@@ -1,0 +1,72 @@
+###########
+# BUILDER #
+###########
+
+# pull official base image
+FROM python:3.8.10 as builder
+
+WORKDIR /usr/src/app
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update
+RUN apt-get upgrade -y && apt-get -y install postgresql gcc python3-dev musl-dev
+
+RUN pip install --upgrade pip
+RUN pip install flake8
+RUN flake8 --ignore=E501,F401 .
+
+COPY . /usr/src/app
+
+COPY ./requirements.txt /usr/src/app
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+
+
+
+
+#########
+# FINAL #
+#########
+
+# pull official base image
+FROM python:3.8.10
+
+# create directory for the app user
+RUN mkdir -p /home/app
+
+# create the app user and group
+RUN groupadd app
+RUN useradd -m -g app app -p PASSWORD
+RUN usermod -aG app app
+
+# create the appropriate directories
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/web
+RUN mkdir $APP_HOME
+RUN mkdir $APP_HOME/staticfiles
+RUN mkdir $APP_HOME/mediafiles
+WORKDIR $APP_HOME
+
+# install dependencies
+RUN apt-get update \
+    && apt-get install -y netcat
+
+COPY --from=builder /usr/src/app/wheels /wheels
+COPY --from=builder /usr/src/app/requirements.txt .
+RUN pip install --no-cache /wheels/*
+
+# copy entrypoint-prod.sh
+COPY ./entrypoint.prod.sh $APP_HOME
+
+# copy project
+COPY . $APP_HOME
+
+# chown all the files to the app user
+RUN chown -R app:app $APP_HOME
+
+# change to the app user
+USER app
+
+# run entrypoint.prod.sh
+ENTRYPOINT ["/home/app/web/entrypoint.prod.sh"]
