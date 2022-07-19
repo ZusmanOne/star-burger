@@ -38,8 +38,8 @@ services:
       - nginx
     container_name: certbot
     volumes:
-      - etc-letsencrypt:/etc/letsencrypt
-      - www-html:/var/www/html
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     command: certonly --webroot --webroot-path=/var/www/html --email bigmama93@mail.ru --agree-tos --no-eff-email -d star-burger.jeffreysinfo.ru
 
 volumes:
