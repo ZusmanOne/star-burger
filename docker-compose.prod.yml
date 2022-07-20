@@ -25,13 +25,14 @@ services:
   nginx:
     build: ./nginx
     volumes:
+      - www-html:/var/www/html
       - ./nginx-conf.d:/etc/nginx/conf.d
       - etc-letsencrypt:/etc/letsencrypt
-      - www-html:/var/www/html
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles
     ports:
       - 80:80
+      - 443:443
     depends_on:
       - web
 
@@ -43,7 +44,7 @@ services:
     volumes:
       - etc-letsencrypt:/etc/letsencrypt
       - www-html:/var/www/html
-    command: certonly --webroot --webroot-path=/var/www/html --email bigmama93@mail.ru --agree-tos --no-eff-email -d star-burger.jeffreysinfo.ru
+    command: certonly --webroot --webroot-path=/var/www/html --email bigmama93@mail.ru --agree-tos --no-eff-email -d star-burger.jeffreys.ru
 
 volumes:
   postgres_data:
