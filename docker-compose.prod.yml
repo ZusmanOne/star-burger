@@ -44,7 +44,7 @@ services:
     volumes:
       - etc-letsencrypt:/etc/letsencrypt
       - www-html:/var/www/html
-    command: certonly --webroot --webroot-path=/var/www/html --email bigmama93@mail.ru --agree-tos --no-eff-email -d star-burger.jeffreys.ru
+    command: certonly --webroot --webroot-path=/var/www/html --email bigmama93@mail.ru --agree-tos --no-eff-email -d star-burger.jeffreysinfo.ru
 
 volumes:
   postgres_data:
