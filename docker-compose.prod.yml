@@ -25,30 +25,16 @@ services:
   nginx:
     build: ./nginx
     volumes:
-      - www-html:/var/www/html
-      - ./nginx-conf.d:/etc/nginx/conf.d
-      - etc-letsencrypt:/etc/letsencrypt
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles
     ports:
-      - 80:80
-      - 443:443
+      - "80:80"
+      - "443:443"
     depends_on:
       - web
-
-  certbot:
-    image: certbot/certbot
-    depends_on:
-      - nginx
-    container_name: certbot
-    volumes:
-      - etc-letsencrypt:/etc/letsencrypt
-      - www-html:/var/www/html
-    command: sudo certbot certonly --webroot --webroot-path=/var/www/html --email bigmama93@mail.ru --agree-tos --no-eff-email -d star-burger.jeffreysinfo.ru
 
 volumes:
   postgres_data:
   static_volume:
   media_volume:
-  www-html:
-  etc-letsencrypt:
+
