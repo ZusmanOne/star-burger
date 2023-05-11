@@ -122,6 +122,15 @@ class OrderAdmin(admin.ModelAdmin):
 
     readonly_fields = ('registered_at',)
 
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for instance in instances:
+            instance.user = request.user
+            instance.save()
+        formset.save_m2m()
+
     def response_post_save_change(self, request, obj):
         res = super().response_post_save_change(request, obj)
         if "next" in request.GET:
