@@ -78,4 +78,4 @@ USER app
 # run entrypoint.prod.sh
 ENTRYPOINT ["/home/app/web/entrypoint.prod.sh"]
 # run docker-entrypoint.sh
-ENTRYPOINT [ "/home/app/web/docker-entrypoint.sh" ]
+ENTRYPOINT ["/home/app/web/docker-entrypoint.sh"]
