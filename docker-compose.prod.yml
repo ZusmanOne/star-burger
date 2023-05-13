@@ -22,18 +22,6 @@ services:
     depends_on:
       - db
 
-  node:
-    build: ./bundles-src
-    # порты
-    ports:
-      - 3000:3000
-    volumes:
-      - ./bundles-src/:/usr/src/app/bundles-src/
-    command: npm run
-    depends_on:
-      - web
-
-
   nginx:
     build: ./nginx
     volumes:
