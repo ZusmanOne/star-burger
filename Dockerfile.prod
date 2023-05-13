@@ -55,8 +55,8 @@ RUN apt-get update \
     && apt-get install -y netcat
 
 
-COPY package.json ./
-COPY package-lock.json ./
+COPY ./bundles-src/*.json ./
+
 
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
@@ -64,9 +64,6 @@ RUN pip install --no-cache /wheels/*
 
 # copy entrypoint-prod.sh
 COPY ./entrypoint.prod.sh $APP_HOME
-
-# copy docker-entrypoint.sh
-COPY ./docker-entrypoint.sh $APP_HOME
 
 # copy project
 COPY . $APP_HOME
@@ -79,7 +76,7 @@ RUN ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --p
 # change to the app user
 USER app
 
+RUN python manage.py collectstatic --noinput
 # run entrypoint.prod.sh
 ENTRYPOINT ["/home/app/web/entrypoint.prod.sh"]
-# run docker-entrypoint.sh
-ENTRYPOINT [ "/home/app/web/docker-entrypoint.sh" ]
+

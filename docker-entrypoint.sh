@@ -1,15 +1,9 @@
 #!/bin/bash
 
 
-# Collect static files
-echo "Collect static files"
-python manage.py collectstatic --noinput
+echo СКРИПТ ЗАПУЩЕН
+git pull origin master
+docker-compose -f docker-compose.prod.yml up
+echo "Контейнеры запущены"
 
-# Apply database migrations
-echo "Apply database migrations"
-python manage.py migrate --noinput
-
-
-
-echo "Django docker is fully configured successfully."
 

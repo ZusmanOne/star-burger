@@ -1,6 +1,7 @@
 version: '3.7'
 services:
   db:
+    restart: always
     image: postgres:12.9
     volumes:
       - postgres_data:/var/lib/postgresql/data/
@@ -8,6 +9,7 @@ services:
       - ./.env.prod.db
 
   web:
+    restart: always
     build:
       context: ./
       dockerfile: Dockerfile.prod
@@ -23,6 +25,7 @@ services:
       - db
 
   nginx:
+    restart: always
     build: ./nginx
     volumes:
       - static_volume:/home/app/web/staticfiles
