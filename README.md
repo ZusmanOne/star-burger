@@ -148,10 +148,40 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ROLLBAR_TOKEN`- зарег-ся на [оф.сайте ROLLBAR](https://www.rollbar.com) и получи токен следуя инструкции
 - `ROLL_BAR_PROD`='production' - для работы на сервере
 - `ROLL_BAR_DEV`='development' - для локальной работы
+
+
+### Сервис так же обернут в докер, что бы запустить проект в докере наберите команду:
+
+```
+sh docker-entrypoint.sh
+```
+проект обновится с гитхаба, соберет образы и запустится
+
+Для ручного запуска контейнеров, укажите следующие команды:
+
+```commandline
+docker-compose up
+```
+соберется образ для dev-версии (на локальной машине)
+
+```commandline
+docker-compose -f docker-compose.prod.yml up
+```
+для версии production
+
+Так же не забудьте применить миграции, данная команда не предусматревает автозапуск
+```commandline
+docker exec -it container_name(для образа web) python manage.py migrate
+```
+посмотреть список запущенных контейнеров:
+`docker ps`
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
 
+
+
 Где используется репозиторий:
 
 - Второй и третий урок [учебного модуля Django](https://dvmn.org/modules/django/)
+
